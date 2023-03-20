@@ -1,0 +1,46 @@
+diff --git a/libavformat/file.c b/libavformat/file.c
+index cbdf48de0a..f236dc915a 100644
+--- a/libavformat/file.c
++++ b/libavformat/file.c
+@@ -194,6 +194,10 @@ static int file_check(URLContext *h, int mask)
+ 
+ static int fd_dup(URLContext *h, int oldfd)
+ {
++#ifdef WASM32_WASI
++    av_log(h, AV_LOG_ERROR, "Cannot use `dup` in wasm32-wasi\n");
++    exit(-1);
++#else
+     int newfd;
+ 
+ #ifdef F_DUPFD_CLOEXEC
+@@ -213,6 +217,7 @@ static int fd_dup(URLContext *h, int oldfd)
+     setmode(newfd, O_BINARY);
+ #endif
+     return newfd;
++#endif // WASM32_WASI
+ }
+ 
+ static int file_close(URLContext *h)
+diff --git a/libavutil/file_open.c b/libavutil/file_open.c
+index 9aa4e4ac61..fcad6058e5 100644
+--- a/libavutil/file_open.c
++++ b/libavutil/file_open.c
+@@ -111,6 +111,10 @@ static const AVClass file_log_ctx_class = {
+ int avpriv_tempfile(const char *prefix, char **filename, int log_offset, void *log_ctx)
+ {
+     FileLogContext file_log_ctx = { &file_log_ctx_class, log_offset, log_ctx };
++#ifdef WASM32_WASI
++    av_log(&file_log_ctx, AV_LOG_ERROR, "Cannot use `tempnam` in wasm32-wasi\n");
++    exit(-1);
++#else
+     int fd = -1;
+ #if !HAVE_MKSTEMP
+     void *ptr= tempnam(NULL, prefix);
+@@ -154,6 +158,7 @@ int avpriv_tempfile(const char *prefix, char **filename, int log_offset, void *l
+         return err;
+     }
+     return fd; /* success */
++#endif // WASM32_WASI
+ }
+ 
+ FILE *avpriv_fopen_utf8(const char *path, const char *mode)

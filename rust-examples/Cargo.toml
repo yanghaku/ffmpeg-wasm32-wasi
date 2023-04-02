@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "ffmpeg-next-examples",
+    "decode-audio"
+]

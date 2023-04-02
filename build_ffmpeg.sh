@@ -51,7 +51,7 @@ mkdir -p "${TMP_BUILD_DIR}"
 pushd "${TMP_BUILD_DIR}"
 
 CONFIGURE="${FFMPEG_DIR}/configure"
-${CONFIGURE} --prefix=${INSTALL_DIR} ${DISABLES} ${DISABLE_ASMS} ${TOOLCHAIN} --extra-cflags="${EXTRA_C_FLAGS}" --extra-ldflags="${EXTRA_LD_FLAGS}"
+${CONFIGURE} --prefix="${INSTALL_DIR}" ${DISABLES} ${DISABLE_ASMS} ${TOOLCHAIN} --extra-cflags="${EXTRA_C_FLAGS}" --extra-ldflags="${EXTRA_LD_FLAGS}"
 
 make -j
 make install

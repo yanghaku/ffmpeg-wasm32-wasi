@@ -1,0 +1,37 @@
+[package]
+name = "ffmpeg-next-examples"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ffmpeg-next = { version = "6.0", features = ["static"], git = "https://github.com/yanghaku/rust-ffmpeg.git", branch = "wasm32-wasi" }
+
+# rust ffmpeg-next examples
+
+[[bin]]
+name = "chapters"
+path = "src/chapters.rs"
+
+[[bin]]
+name = "codec-info"
+path = "src/codec-info.rs"
+
+[[bin]]
+name = "dump-frames"
+path = "src/dump-frames.rs"
+
+[[bin]]
+name = "metadata"
+path = "src/metadata.rs"
+
+[[bin]]
+name = "remux"
+path = "src/remux.rs"
+
+[[bin]]
+name = "transcode-audio"
+path = "src/transcode-audio.rs"
+
+[[bin]]
+name = "transcode-x264"
+path = "src/transcode-x264.rs"

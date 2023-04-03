@@ -12,7 +12,7 @@ FFMPEG_VERSION="release/6.0"
 
 
 # options for ffmpeg
-DISABLES="--disable-runtime-cpudetect --disable-autodetect --disable-doc --disable-pthreads --disable-network --disable-w32threads --disable-os2threads --disable-alsa --disable-appkit --disable-avfoundation --disable-bzlib --disable-coreimage --disable-iconv --disable-metal --disable-sndio --disable-schannel --disable-sdl2 --disable-securetransport --disable-vulkan --disable-xlib --disable-zlib --disable-amf --disable-audiotoolbox --disable-cuda-llvm --disable-cuvid --disable-d3d11va --disable-dxva2 --disable-ffnvcodec --disable-nvdec --disable-nvenc --disable-v4l2-m2m --disable-vaapi --disable-vdpau --disable-videotoolbox --disable-asm --disable-altivec --disable-vsx --disable-power8 --disable-amd3dnow --disable-amd3dnowext --disable-xop --disable-fma3 --disable-fma4 --disable-aesni --disable-armv5te --disable-armv6 --disable-armv6t2 --disable-vfp --disable-neon --disable-inline-asm --disable-x86asm --disable-mipsdsp --disable-mipsdspr2 --disable-msa --disable-mipsfpu --disable-mmi --disable-lsx --disable-lasx --disable-rvv --disable-debug"
+DISABLES="--disable-runtime-cpudetect --disable-autodetect --disable-doc --disable-network --disable-w32threads --disable-os2threads --disable-alsa --disable-appkit --disable-avfoundation --disable-bzlib --disable-coreimage --disable-iconv --disable-metal --disable-sndio --disable-schannel --disable-sdl2 --disable-securetransport --disable-vulkan --disable-xlib --disable-zlib --disable-amf --disable-audiotoolbox --disable-cuda-llvm --disable-cuvid --disable-d3d11va --disable-dxva2 --disable-ffnvcodec --disable-nvdec --disable-nvenc --disable-v4l2-m2m --disable-vaapi --disable-vdpau --disable-videotoolbox --disable-asm --disable-altivec --disable-vsx --disable-power8 --disable-amd3dnow --disable-amd3dnowext --disable-xop --disable-fma3 --disable-fma4 --disable-aesni --disable-armv5te --disable-armv6 --disable-armv6t2 --disable-vfp --disable-neon --disable-inline-asm --disable-x86asm --disable-mipsdsp --disable-mipsdspr2 --disable-msa --disable-mipsfpu --disable-mmi --disable-lsx --disable-lasx --disable-rvv --disable-debug"
 
 OS=android # can not use native os
 ARCH=wasm32
@@ -25,8 +25,21 @@ STRIP="${WASI_SDK}/bin/llvm-strip"
 CC="${WASI_SDK}/bin/clang"
 CXX="${WASI_SDK}/bin/clang++"
 LD="${WASI_SDK}/bin/clang"
-EXTRA_C_FLAGS='-DWASM32_WASI -D_WASI_EMULATED_PROCESS_CLOCKS'  # used for patch
-EXTRA_LD_FLAGS='-lwasi-emulated-process-clocks'
+
+# detect pthread support
+VERSION=$(${CC} --version | head -n 1 | grep -oE "[0-9][0-9].")
+# pthread since wasi-sdk-20 (llvm-16.0)
+if [[ "${VERSION}" == "16." ]]; then
+    echo "Build with pthread support!"
+    EXTRA_C_FLAGS='-DWASM32_WASI -D_WASI_EMULATED_PROCESS_CLOCKS -D_WASI_EMULATED_SIGNAL --target=wasm32-wasi-threads'
+    EXTRA_LD_FLAGS='-lwasi-emulated-process-clocks -lwasi-emulated-signal --target=wasm32-wasi-threads -Wl,--import-memory,--export-memory,--max-memory=2147483648'
+    DISABLES="${DISABLES} --enable-pthreads"
+else
+    EXTRA_C_FLAGS='-DWASM32_WASI -D_WASI_EMULATED_PROCESS_CLOCKS'
+    EXTRA_LD_FLAGS='-lwasi-emulated-process-clocks'
+    DISABLES="${DISABLES} --disable-pthreads"
+fi
+
 
 TOOLCHAIN="--enable-cross-compile --arch=${ARCH} --target-os=${OS} --nm=${NM} --ar=${AR} --as=${AS} --strip=${STRIP} --cc=${CC} --cxx=${CXX} --objcc=${CC} --dep-cc=${CC} --ld=${LD} --ranlib=${RANLIB} --enable-pic --enable-lto"
 

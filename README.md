@@ -1,6 +1,6 @@
-# Introduction
+# Use ffmpeg library in C/C++ and Rust and compile to Webassembly.
 
-Use ffmpeg library in Webassembly.
+## Introduction
 
 There are 2 patches:
 
@@ -10,8 +10,8 @@ There are 2 patches:
 
 The binary programs:
 
-* [ ] ffmpeg
-* [ ] ffplay
+* [x] ffmpeg (wasm32-wasi-threads target only)
+* [ ] ffplay (no sdl support now)
 * [x] ffprobe
 
 The static libraries:
@@ -24,13 +24,13 @@ The static libraries:
 * [x] libavformat.a   (with patch, cannot use dup)
 * [x] libswresample.a
 
-## build ffmpeg from source
+### build ffmpeg from source
 
 Requirement: wasi-sdk
 
 The script [build_ffmpeg.sh](./build_ffmpeg.sh) can compile ffmpeg source to wasm32-wasi.
 
-# C Examples
+## C Examples
 
 Requirements: 
 * wasi-sdk
@@ -61,9 +61,9 @@ The ffmpeg C examples which can be built:
 * [x] transcode_aac
 
 
-# Rust Examples
+## Rust Examples
 
-## Requirements:
+### Requirements:
 
 * wasi-sysroot
 * libclang_rt.builtins-wasm32.a (because [rust compiler-rt missing some f128 functions](https://github.com/rust-lang/compiler-builtins#unimplemented-functions)
@@ -72,7 +72,7 @@ The ffmpeg C examples which can be built:
 
 wasi-sysroot and libclang_rt.builtins-wasm32.a is bundled in wasi-sdk, or download these separately from [wasi-sdk release page](https://github.com/WebAssembly/wasi-sdk/releases)
 
-## Build:
+### Build:
 
 1. Config the wasi-sysroot and ffmpeg path in ```rust-examples/.cargo/config.toml```
 
@@ -103,7 +103,13 @@ cd rust-examples
 cargo build --release
 ```
 
-# Test Data
+## Test Data
 
 download from: https://github.com/ffmpegwasm/testdata.git
+
+## Reference
+
+* https://github.com/yamt/FFmpeg-WASI
+
+> When I searched how to use the new feature of wasi-sdk-20, I found this repo: https://github.com/yamt/FFmpeg-WASI, which has already compiled the ffmpeg to wasm32-wasi and support thread.
 
